@@ -2,5 +2,5 @@
 
 Usage example:
 ```
-./submit.sh -i gs://.../flights.csv
+./submit.sh -f gs://.../flights.csv -a gs://.../airlines.csv
 ```

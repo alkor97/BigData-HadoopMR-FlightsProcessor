@@ -1,9 +1,10 @@
 #!/bin/bash
 
 usage() {
-  echo -e "Usage: $0 [-i <input-file>] [-o <path>]\n"\
+  echo -e "Usage: $0 -if <flights-input-file> -ia <airlines-input-file> [-o <path>]\n"\
        "where\n"\
-       "-i defines an input file\n"\
+       "-f defines a flights input file\n"\
+       "-a defines an airlines input file\n"\
        "-o defines an output path\n"\
        "-e defines an executor: hadoop or yarn, yarn but default\n"\
        "\n"\
@@ -12,9 +13,10 @@ usage() {
 }
 
 
-while getopts ":i:o:e:" opt; do
+while getopts ":f:a:o:e:" opt; do
     case "$opt" in
-        i)  INPUT_FILE=${OPTARG} ;;
+        f)  FLIGHTS_INPUT_FILE=${OPTARG} ;;
+        a)  AIRLINES_INPUT_FILE=${OPTARG} ;;
         o)  OUTPUT_PATH=${OPTARG} ;;
         e)  EXECUTOR=${OPTARG} ;;
         *)  usage ;;
@@ -43,8 +45,14 @@ APP_PATH="$THIS_PATH/flights-processor-1.0-SNAPSHOT-jar-with-dependencies.jar"
 
 hadoop fs -rm -R $INPUT_PATH $OUTPUT_PATH
 hadoop fs -mkdir -p $INPUT_PATH
-echo "copy $INPUT_FILE to $INPUT_PATH"
-hadoop fs -cp $INPUT_FILE $INPUT_PATH
+
+FLIGHTS_FILE_NAME=`basename $FLIGHTS_INPUT_FILE`
+AIRLINES_FILE_NAME=`basename $AIRLINES_INPUT_FILE`
+
+echo "copy $FLIGHTS_INPUT_FILE to $INPUT_PATH"
+hadoop fs -cp $FLIGHTS_INPUT_FILE $INPUT_PATH
+echo "copy $AIRLINES_INPUT_FILE to $INPUT_PATH"
+hadoop fs -cp $AIRLINES_INPUT_FILE $INPUT_PATH
 
 echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 echo "THIS_FILE = $THIS_FILE"
@@ -59,7 +67,8 @@ echo "-------------------------------------"
 mapReduceArguments=(
   "$APP_PATH"
   "com.globallogic.hadoop.mr.flights.Processor"
-  "$INPUT_PATH"
+  "$INPUT_PATH/$FLIGHTS_FILE_NAME"
+  "$INPUT_PATH/$AIRLINES_FILE_NAME"
   "$OUTPUT_PATH"
 )
 
