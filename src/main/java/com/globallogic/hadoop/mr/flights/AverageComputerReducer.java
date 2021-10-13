@@ -32,12 +32,12 @@ public class AverageComputerReducer extends Reducer<
                 sum += variant.getInt().get();
                 ++count;
             } else if (value instanceof Text) {
-                airlineNames.put(key.toString(), variant.getText().toString());
+                airlineNames.put(iataCode, variant.getText().toString());
             }
         }
 
         if (count > 0) {
-            averageDelays.put(key.toString(), sum / count);
+            averageDelays.put(iataCode, sum / count);
         }
     }
 
