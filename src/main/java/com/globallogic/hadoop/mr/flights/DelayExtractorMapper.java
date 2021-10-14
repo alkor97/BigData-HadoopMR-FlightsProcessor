@@ -13,7 +13,7 @@ public class DelayExtractorMapper extends Mapper<
         LongWritable,   // ?
         Text,           // single line of text
         Text,           // AIRLINE
-        VariantWritable // DEPARTURE_DELAY
+        Payload // DEPARTURE_DELAY
         > {
 
     // AIRLINE column index in flights.csv
@@ -23,7 +23,7 @@ public class DelayExtractorMapper extends Mapper<
     public static final int DEPARTURE_DELAY_INDEX = 11;
 
     @Override
-    protected void map(LongWritable key, Text value, Mapper<LongWritable, Text, Text, VariantWritable>.Context context) throws IOException, InterruptedException {
+    protected void map(LongWritable key, Text value, Mapper<LongWritable, Text, Text, Payload>.Context context) throws IOException, InterruptedException {
         String line = value.toString();
         String[] tokens = line.split(",");
         if (tokens.length > AIRLINE_INDEX) {
@@ -31,7 +31,9 @@ public class DelayExtractorMapper extends Mapper<
             if (!airline.isEmpty() && tokens.length > DEPARTURE_DELAY_INDEX) {
                 try {
                     int departureDelay = Integer.parseInt(tokens[DEPARTURE_DELAY_INDEX].trim());
-                    context.write(new Text(airline), new VariantWritable(departureDelay));
+                    context.write(new Text(airline), new Payload()
+                            .setDelay(departureDelay)
+                            .setCount(1));
                 } catch (NumberFormatException e) {
                     // skip silently
                 }

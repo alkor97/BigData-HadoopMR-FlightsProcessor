@@ -10,7 +10,7 @@ public class AirlinesExtractorMapper extends Mapper<
         LongWritable,       // ?
         Text,               // single line of text
         Text,               // IATA_CODE
-        VariantWritable     // AIRLINE
+        Payload             // AIRLINE
         > {
 
     // IATA_CODE column index in airlines.csv
@@ -20,7 +20,7 @@ public class AirlinesExtractorMapper extends Mapper<
     public static final int AIRLINE_INDEX = 1;
 
     @Override
-    protected void map(LongWritable key, Text value, Mapper<LongWritable, Text, Text, VariantWritable>.Context context) throws IOException, InterruptedException {
+    protected void map(LongWritable key, Text value, Mapper<LongWritable, Text, Text, Payload>.Context context) throws IOException, InterruptedException {
         String line = value.toString();
         String[] tokens = line.split(",");
         if (tokens.length > IATA_CODE_INDEX) {
@@ -28,7 +28,7 @@ public class AirlinesExtractorMapper extends Mapper<
             if (!iataCode.isEmpty() && tokens.length > AIRLINE_INDEX) {
                 String airline = tokens[AIRLINE_INDEX].trim();
                 if (!airline.isEmpty()) {
-                    context.write(new Text(iataCode), new VariantWritable(airline));
+                    context.write(new Text(iataCode), new Payload().setAirline(airline));
                 }
             }
         }

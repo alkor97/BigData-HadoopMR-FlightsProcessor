@@ -26,9 +26,13 @@ public class Processor {
 
         Job job = Job.getInstance(conf, "flights-processor");
         job.setJarByClass(Processor.class);
+        job.setNumReduceTasks(1);
+
+        job.setCombinerClass(PayloadCombiner.class);
         job.setReducerClass(AverageComputerReducer.class);
+
         job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(VariantWritable.class);
+        job.setMapOutputValueClass(Payload.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(DoubleWritable.class);
 
